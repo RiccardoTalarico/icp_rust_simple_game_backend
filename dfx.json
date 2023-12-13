@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "canisters": {
+    "icp_rust_simple_game_backend": {
+      "type": "rust",
+      "package": "icp_rust_simple_game_backend",
+      "candid": "src/icp_rust_simple_game_backend/icp_rust_simple_game_backend.did"
+    }
+  },
+  "output_env_file": ".env"
+}

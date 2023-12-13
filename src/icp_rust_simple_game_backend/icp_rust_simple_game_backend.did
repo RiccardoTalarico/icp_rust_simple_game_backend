@@ -1,0 +1,57 @@
+type Achievement = record {
+  id : nat64;
+  name : text;
+  description : text;
+  points : nat32;
+};
+type AchievementPayload = record {
+  name : text;
+  description : text;
+  points : nat32;
+};
+type Error = variant {
+  InsufficientExperience : record { msg : text };
+  NotFound : record { msg : text };
+  InvalidOperation : record { msg : text };
+};
+type InventoryItem = record {
+  id : nat64;
+  name : text;
+  description : text;
+  created_at : nat64;
+  quantity : nat32;
+};
+type InventoryItemPayload = record {
+  name : text;
+  description : text;
+  quantity : nat32;
+};
+type Player = record {
+  id : nat64;
+  username : text;
+  created_at : nat64;
+  level : nat32;
+  experience : nat64;
+  achievements : vec nat64;
+};
+type PlayerPayload = record { username : text };
+type Result = variant { Ok : Player; Err : Error };
+type Result_1 = variant { Ok : Achievement; Err : Error };
+type Result_2 = variant { Ok : vec Achievement; Err : Error };
+type Result_3 = variant { Ok : vec InventoryItem; Err : Error };
+type Result_4 = variant { Ok : vec Player; Err : Error };
+type Result_5 = variant { Ok : InventoryItem; Err : Error };
+service : {
+  create_achievement : (AchievementPayload) -> (opt Achievement);
+  create_inventory_item : (InventoryItemPayload) -> (opt InventoryItem);
+  create_player : (PlayerPayload) -> (opt Player);
+  earn_achievement : (nat64, nat64) -> (Result);
+  get_achievement : (nat64) -> (Result_1) query;
+  get_all_achievements : () -> (Result_2) query;
+  get_all_inventory_items : () -> (Result_3) query;
+  get_all_players : () -> (Result_4) query;
+  get_inventory_item : (nat64) -> (Result_5) query;
+  get_player : (nat64) -> (Result) query;
+  update_player_level : (nat64, nat32) -> (Result);
+  use_inventory_item : (nat64, nat64) -> (Result);
+}
