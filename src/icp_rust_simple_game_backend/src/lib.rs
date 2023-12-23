@@ -18,7 +18,7 @@ struct Player {
     level: u32,
     experience: u64,
     created_at: u64,
-    achievements:Vec<u64>
+    achievements: Vec<u64>,
 }
 
 // Implement Storable and BoundedStorable for Player
@@ -182,7 +182,7 @@ fn create_player(payload: PlayerPayload) -> Option<Player> {
         level: 1,
         experience: 0,
         created_at: time(),
-        achievements: Vec::new()
+        achievements: Vec::new(),
     };
     do_insert_player(&player);
     Some(player)
@@ -215,7 +215,8 @@ fn update_player_level(id: u64, new_level: u32) -> Result<Player, Error> {
 fn get_all_achievements() -> Result<Vec<Achievement>, Error> {
     let achievements_map: Vec<(u64, Achievement)> =
         ACHIEVEMENTS.with(|service| service.borrow().iter().collect());
-    let achievements: Vec<Achievement> = achievements_map.into_iter().map(|(_, achievement)| achievement).collect();
+    let achievements: Vec<Achievement> =
+        achievements_map.into_iter().map(|(_, achievement)| achievement).collect();
 
     if !achievements.is_empty() {
         Ok(achievements)
@@ -264,40 +265,41 @@ fn create_achievement(payload: AchievementPayload) -> Option<Achievement> {
 
 // Internal function to insert an achievement into storage
 fn do_insert_achievement(achievement: &Achievement) {
-    ACHIEVEMENTS.with(|service| service.borrow_mut().insert(achievement.id, achievement.clone()));
+    ACHIEVEMENTS
+        .with(|service| service.borrow_mut().insert(achievement.id, achievement.clone()));
 }
 
-//update function to check conditions and award an achievment to a player
+// Update function to check conditions and award an achievement to a player
 #[ic_cdk::update]
-fn earn_achievement(player_id: u64, achievement_id: u64) -> Result<Player,Error>{
+fn earn_achievement(player_id: u64, achievement_id: u64) -> Result<Player, Error> {
     let player_option: Option<Player> = _get_player(&player_id);
     let achievement_option: Option<Achievement> = _get_achievement(&achievement_id);
 
     match (player_option, achievement_option) {
-        (Some(mut player), Some(achievement))=>{
-            //check if the player already has the achievement
-            if player.achievements.contains(&achievement_id){
+        (Some(mut player), Some(achievement)) => {
+            // check if the player already has the achievement
+            if player.achievements.contains(&achievement_id) {
                 return Ok(player);
             }
 
-            //check if player has enough points to earn achievement
+            // check if the player has enough points to earn achievement
             if player.experience >= achievement.points as u64 {
-                //award the achievement to the player
+                // award the achievement to the player
                 player.achievements.push(achievement_id);
                 do_insert_player(&player);
                 Ok(player)
-            }else{
-                Err(Error::InsufficientExperience{
+            } else {
+                Err(Error::InsufficientExperience {
                     msg: "Player does not have enough experience to earn the achievement".to_string(),
                 })
             }
         }
-    (None, _) => Err(Error::NotFound {
-        msg: format!("Player with id={} not found",player_id),
-    }),
-    (_, None) => Err(Error::NotFound {
-        msg: format!("Achievement with id={} not found",achievement_id),
-    }),
+        (None, _) => Err(Error::NotFound {
+            msg: format!("Player with id={} not found", player_id),
+        }),
+        (_, None) => Err(Error::NotFound {
+            msg: format!("Achievement with id={} not found", achievement_id),
+        }),
     }
 }
 
@@ -356,7 +358,8 @@ fn create_inventory_item(payload: InventoryItemPayload) -> Option<InventoryItem>
 
 // Internal function to insert an inventory item into storage
 fn do_insert_inventory_item(item: &InventoryItem) {
-    INVENTORY.with(|service| service.borrow_mut().insert(item.id, item.clone()));
+    INVENTORY
+        .with(|service| service.borrow_mut().insert(item.id, item.clone()));
 }
 
 // Update function to simulate using an inventory item
@@ -393,8 +396,7 @@ fn use_inventory_item(player_id: u64, item_id: u64) -> Result<Player, Error> {
 enum Error {
     NotFound { msg: String },
     InvalidOperation { msg: String },
-    InsufficientExperience {msg: String},
-
+    InsufficientExperience { msg: String },
 }
 
 // Export Candid for the defined types and functions
